@@ -1,524 +1,162 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Futuristic Club Picker</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/confetti-js@0.0.18/dist/index.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-  <style>
-    :root {
-      --primary: #3b82f6;
-      --secondary: #10b981;
-    }
-    
-    .glow {
-      text-shadow: 0 0 10px rgba(59, 130, 246, 0.7);
-    }
-    
-    .gradient-text {
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    
-    .neumorphic {
-      border-radius: 1rem;
-      background: linear-gradient(145deg, #1a202c, #2d3748);
-      box-shadow:  10px 10px 20px #161b26, 
-                  -10px -10px 20px #2a344a;
-    }
-    
-    .pulse {
-      animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-    
-    #confetti-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-    }
-    
-    .club-card {
-      transition: all 0.3s ease;
-      perspective: 1000px;
-    }
-    
-    .club-card:hover {
-      transform: translateY(-5px) rotateX(5deg);
-    }
-    
-    .digit {
-      font-feature-settings: "tnum";
-      font-variant-numeric: tabular-nums;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Club Picker | Duel Epik!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/script.js" defer></script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .floating { animation: float 4s ease-in-out infinite; }
+        .pulse { animation: pulse 2s ease-in-out infinite; }
+        .glow:hover { box-shadow: 0 0 20px rgba(255, 255, 255, 0.15); }
+        .tab-underline {
+            position: relative;
+        }
+        .tab-underline::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #ff3b3b, #9333ea);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        .tab-active::after {
+            transform: scaleX(1);
+        }
+        body {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            font-family: 'Inter', sans-serif;
+        }
+        input, select {
+            transition: all 0.3s ease;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #9333ea;
+            box-shadow: 0 0 8px rgba(147, 51, 234, 0.3);
+        }
+        button {
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen font-sans antialiased overflow-x-hidden">
-  <canvas id="confetti-canvas"></canvas>
-  
-  <div class="container mx-auto px-4 py-8 max-w-4xl">
-    <header class="text-center mb-12">
-      <h1 class="text-5xl font-extrabold mb-3 gradient-text">Futuristic Club Picker</h1>
-      <p class="text-xl text-gray-400">Randomly assign top football clubs to your players</p>
+<body class="text-gray-100 min-h-screen">
+    <header class="bg-slate-900/80 backdrop-blur-lg border-b border-slate-700/50 py-6 sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl font-extrabold text-center bg-gradient-to-r from-red-500 to-purple-600 bg-clip-text text-transparent">
+                RANDOM CLUB PICKER
+            </h1>
+            <p class="text-center mt-2 text-slate-400 text-lg">Gass duel sampe ada yang nyungsep!</p>
+        </div>
     </header>
-    
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <!-- Setup Section -->
-      <div id="setup" class="neumorphic p-6 space-y-6 animate__animated animate__fadeIn">
-        <div class="space-y-2">
-          <h2 class="text-2xl font-bold flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            Players
-          </h2>
-          <div id="players" class="space-y-3"></div>
+
+    <nav class="container mx-auto px-4 mt-8">
+        <div class="flex justify-center gap-6">
+            <button id="multiplayerTab" class="tab-btn tab-underline px-6 py-3 text-lg font-semibold text-red-400 tab-active">
+                Multiplayer
+            </button>
+            <button id="duelTab" class="tab-btn tab-underline px-6 py-3 text-lg font-semibold text-purple-400">
+                Dedel Duel
+            </button>
         </div>
-        
-        <div class="flex flex-col sm:flex-row gap-3">
-          <button id="add-player" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium flex items-center justify-center gap-2 transition-all">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-            </svg>
-            Add Player
-          </button>
-          <button id="randomize-clubs" class="flex-1 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium flex items-center justify-center gap-2 transition-all pulse">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
-            </svg>
-            Randomize
-          </button>
+    </nav>
+
+    <main class="container mx-auto px-4 py-12">
+        <div id="multiplayerContent" class="tab-content">
+            <section class="bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50">
+                <h2 class="text-3xl font-bold mb-4 text-red-400">Multiplayer Mode</h2>
+                <p class="text-slate-300 mb-6">Ajak geng lu buat pilih klub random. Siap ketawa bareng!</p>
+                
+                <div id="playersContainer" class="mb-8"></div>
+                
+                <div class="flex flex-wrap gap-4 mb-8">
+                    <button id="addPlayerBtn" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg glow font-semibold">
+                        Nambah Bro
+                    </button>
+                    <button id="removePlayerBtn" class="bg-slate-600 hover:bg-slate-700 text-white px-6 py-3 rounded-lg glow font-semibold">
+                        Buang Bro
+                    </button>
+                    <button id="pickClubsBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg glow font-semibold">
+                        Gass Pilih Klub!
+                    </button>
+                </div>
+                
+                <div id="multiplayerResults" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+            </section>
         </div>
-      </div>
-      
-      <!-- Stats Section -->
-      <div class="neumorphic p-6 animate__animated animate__fadeIn">
-        <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-          Statistics
-        </h2>
-        
-        <div class="grid grid-cols-2 gap-4">
-          <div class="bg-gray-800 p-4 rounded-lg">
-            <div class="text-sm text-gray-400">Total Clubs</div>
-            <div class="text-3xl font-bold digit" id="total-clubs">24</div>
-          </div>
-          <div class="bg-gray-800 p-4 rounded-lg">
-            <div class="text-sm text-gray-400">Players Added</div>
-            <div class="text-3xl font-bold digit" id="players-count">0</div>
-          </div>
+
+        <div id="duelContent" class="tab-content hidden">
+            <section class="bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50">
+                <h2 class="text-3xl font-bold mb-4 text-purple-400">Dedel Duel Mode</h2>
+                <p class="text-slate-300 mb-6">1 vs 1, duel sampe salah satu surrender!</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <label class="block text-slate-300 mb-2 font-medium">Bro 1</label>
+                        <input type="text" id="player1" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-400" placeholder="Nama bro pertama">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 mb-2 font-medium">Bro 2</label>
+                        <input type="text" id="player2" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-400" placeholder="Nama bro kedua">
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <label class="block text-slate-300 mb-2 font-medium">Mode Duel</label>
+                    <select id="duelMode" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-slate-100">
+                        <option value="free">Gass Bebas (Tanpa Batas)</option>
+                        <option value="3">Best of 3</option>
+                        <option value="5">Best of 5</option>
+                        <option value="7">Best of 7</option>
+                    </select>
+                </div>
+                
+                <div class="flex flex-wrap gap-4 mb-8">
+                    <button id="startDuelBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg glow font-semibold">
+                        Mulai Duel!
+                    </button>
+                    <button id="resetDuelBtn" class="bg-slate-600 hover:bg-slate-700 text-white px-6 py-3 rounded-lg glow font-semibold">
+                        Reset Ulang
+                    </button>
+                </div>
+                
+                <div id="duelResults" class="space-y-6"></div>
+            </section>
         </div>
-        
-        <div class="mt-6">
-          <h3 class="font-medium mb-2">Club Distribution</h3>
-          <div class="h-3 bg-gray-800 rounded-full overflow-hidden">
-            <div id="league-distribution" class="h-full bg-gradient-to-r from-blue-500 to-green-500" style="width: 0%"></div>
-          </div>
-          <div class="flex justify-between text-xs text-gray-400 mt-1">
-            <span>Premier League</span>
-            <span>La Liga</span>
-            <span>Bundesliga</span>
-            <span>Serie A</span>
-            <span>Ligue 1</span>
-          </div>
+
+        <section class="mt-12 bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50">
+            <h2 class="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-red-600 bg-clip-text text-transparent">Histori Duel Epik</h2>
+            <p class="text-slate-300 mb-6">Cek momen-momen duel yang bikin deg-degan!</p>
+            
+            <div id="historyContainer"></div>
+            
+            <button id="clearHistoryBtn" class="mt-6 bg-slate-600 hover:bg-slate-700 text-white px-6 py-3 rounded-lg glow font-semibold">
+                Hapus Semua Histori
+            </button>
+        </section>
+    </main>
+
+    <footer class="bg-slate-900/80 border-t border-slate-700/50 py-8 mt-12">
+        <div class="container mx-auto px-4 text-center text-slate-400">
+            <p>Â© 2025 Random Club Picker | Dibikin penuh passion buat pecinta bola</p>
+            <p class="mt-2 text-sm">Dapet klub zonk? Chill, itu cuma game!</p>
         </div>
-      </div>
-    </div>
-    
-    <!-- Loading Animation -->
-    <div id="loading-animation" class="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50 hidden">
-      <div class="spinner animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-blue-500 mb-6"></div>
-      <div class="text-2xl font-medium text-center max-w-md">
-        <div id="loading-text" class="glow">Randomizing clubs...</div>
-        <div id="countdown" class="text-gray-400 mt-2 digit">10</div>
-      </div>
-    </div>
-    
-    <!-- Results Section -->
-    <div id="results-section" class="mt-12 hidden animate__animated animate__fadeInUp">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-3xl font-bold gradient-text">Results</h2>
-        <button id="share-results" class="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-all">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
-          </svg>
-          Share
-        </button>
-      </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="results-container"></div>
-      
-      <div class="mt-8 flex justify-center">
-        <button id="reset-button" class="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-medium flex items-center gap-2 transition-all">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
-          </svg>
-          Start Over
-        </button>
-      </div>
-    </div>
-    
-    <footer class="mt-16 text-center text-gray-500 text-sm">
-      <p>© 2025 Futuristic Club Picker | All clubs belong to their respective leagues</p>
     </footer>
-  </div>
-
-  <script>
-    // Enhanced club data with leagues
-    const clubs = [
-      { name: "Manchester United", league: "Premier League", rating: 5 },
-      { name: "FC Barcelona", league: "La Liga", rating: 5 },
-      { name: "Real Madrid", league: "La Liga", rating: 5 },
-      { name: "Bayern Munich", league: "Bundesliga", rating: 5 },
-      { name: "Liverpool", league: "Premier League", rating: 5 },
-      { name: "Manchester City", league: "Premier League", rating: 5 },
-      { name: "Paris Saint-Germain", league: "Ligue 1", rating: 5 },
-      { name: "Chelsea", league: "Premier League", rating: 4 },
-      { name: "Juventus", league: "Serie A", rating: 4 },
-      { name: "Arsenal", league: "Premier League", rating: 4 },
-      { name: "Atletico Madrid", league: "La Liga", rating: 4 },
-      { name: "Borussia Dortmund", league: "Bundesliga", rating: 4 },
-      { name: "Tottenham Hotspur", league: "Premier League", rating: 4 },
-      { name: "Inter Milan", league: "Serie A", rating: 4 },
-      { name: "AC Milan", league: "Serie A", rating: 4 },
-      { name: "Ajax", league: "Eredivisie", rating: 3 },
-      { name: "Napoli", league: "Serie A", rating: 4 },
-      { name: "Benfica", league: "Primeira Liga", rating: 3 },
-      { name: "Porto", league: "Primeira Liga", rating: 3 },
-      { name: "RB Leipzig", league: "Bundesliga", rating: 3 },
-      { name: "Sevilla", league: "La Liga", rating: 3 },
-      { name: "Roma", league: "Serie A", rating: 3 },
-      { name: "Lyon", league: "Ligue 1", rating: 3 },
-      { name: "Sporting CP", league: "Primeira Liga", rating: 3 }
-    ];
-
-    // DOM Elements
-    const playersContainer = document.getElementById('players');
-    const addBtn = document.getElementById('add-player');
-    const randBtn = document.getElementById('randomize-clubs');
-    const loadingEl = document.getElementById('loading-animation');
-    const loadingText = document.getElementById('loading-text');
-    const countdownEl = document.getElementById('countdown');
-    const resultsContainer = document.getElementById('results-container');
-    const resultsSection = document.getElementById('results-section');
-    const resetBtn = document.getElementById('reset-button');
-    const shareBtn = document.getElementById('share-results');
-    const playersCountEl = document.getElementById('players-count');
-    const leagueDistributionEl = document.getElementById('league-distribution');
-    
-    let confetti;
-    let teaseInterval;
-    let countdownInterval;
-
-    // Initialize
-    const init = () => {
-      // Initialize confetti
-      const confettiSettings = { target: 'confetti-canvas', max: 150, size: 1.5 };
-      confetti = new ConfettiGenerator(confettiSettings);
-      
-      // Add initial players
-      addPlayer();
-      addPlayer();
-      
-      // Event listeners
-      addBtn.onclick = addPlayer;
-      randBtn.onclick = randomize;
-      resetBtn.onclick = reset;
-      shareBtn.onclick = shareResults;
-      
-      // Update stats
-      updateStats();
-    };
-
-    // Add player input
-    const addPlayer = () => {
-      const idx = playersContainer.children.length + 1;
-      const div = document.createElement('div');
-      div.className = 'flex gap-2 items-center';
-      div.innerHTML = `
-        <span class="text-gray-400">${idx}.</span>
-        <input class="flex-1 px-4 py-2 bg-gray-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all" 
-               placeholder="Player ${idx}" data-player-input>
-        <button class="p-2 text-gray-400 hover:text-red-500 transition-all" data-remove-player>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-          </svg>
-        </button>
-      `;
-      playersContainer.appendChild(div);
-      
-      // Add event listener to remove button
-      div.querySelector('[data-remove-player]').addEventListener('click', () => {
-        div.remove();
-        updatePlayerNumbers();
-        updateStats();
-      });
-      
-      // Add input event to update stats
-      div.querySelector('[data-player-input]').addEventListener('input', updateStats);
-      
-      updateStats();
-    };
-
-    // Update player numbers after removal
-    const updatePlayerNumbers = () => {
-      const inputs = playersContainer.querySelectorAll('[data-player-input]');
-      inputs.forEach((input, index) => {
-        input.placeholder = `Player ${index + 1}`;
-        input.previousElementSibling.textContent = `${index + 1}.`;
-      });
-    };
-
-    // Get player names
-    const getNames = () => [...playersContainer.querySelectorAll('[data-player-input]')].map(i => i.value || `Player ${i.placeholder.replace('Player ', '')}`);
-    
-    // Fisher-Yates shuffle algorithm
-    const shuffle = array => {
-      const a = [...array];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    };
-
-    // Randomize clubs
-    function randomize() {
-      const names = getNames();
-      
-      if (names.length < 2) {
-        showAlert('Add at least 2 players');
-        return;
-      }
-      
-      if (names.length > clubs.length) {
-        showAlert(`Maximum ${clubs.length} players allowed`);
-        return;
-      }
-      
-      // Hide setup, show loading
-      document.getElementById('setup').classList.add('hidden');
-      loadingEl.classList.remove('hidden');
-      
-      // Start countdown
-      let count = 10;
-      countdownEl.textContent = count;
-      countdownInterval = setInterval(() => {
-        count--;
-        countdownEl.textContent = count;
-        if (count <= 0) clearInterval(countdownInterval);
-      }, 1000);
-      
-      // Start loading messages
-      startTease();
-      
-      // Process after delay
-      setTimeout(() => {
-        const shuffledClubs = shuffle(clubs);
-        const picks = shuffledClubs.slice(0, names.length);
-        
-        // Sort by club rating (optional)
-        picks.sort((a, b) => b.rating - a.rating);
-        
-        showResults(names, picks);
-        stopTease();
-        loadingEl.classList.add('hidden');
-        clearInterval(countdownInterval);
-        
-        // Show confetti
-        confetti.render();
-        setTimeout(() => confetti.clear(), 5000);
-      }, 10000);
-    }
-
-    // Loading messages
-    function startTease() {
-      const msgs = [
-    "Sabar anjing, lagi loading...",
-    "Bentar cok, masih mikir...",
-    "Saiki lagi ngitung bos...",
-    "Sek sek, ojo kesusu...",
-    "Njir, udah mau kelar nih..."
-  ];
-      loadingText.textContent = msgs[0];
-      let i = 1;
-      teaseInterval = setInterval(() => {
-        loadingText.textContent = msgs[i % msgs.length];
-        i++;
-      }, 2000);
-    }
-
-    function stopTease() {
-      clearInterval(teaseInterval);
-    }
-
-    // Show results
-    function showResults(names, picks) {
-      resultsContainer.innerHTML = '';
-      
-      // Group by league for stats
-      const leagueStats = {};
-      picks.forEach(pick => {
-        leagueStats[pick.league] = (leagueStats[pick.league] || 0) + 1;
-      });
-      
-      // Update league distribution visualization
-      updateLeagueDistribution(leagueStats);
-      
-      // Create result cards
-      names.forEach((name, i) => {
-        const club = picks[i];
-        const card = document.createElement('div');
-        card.className = 'club-card bg-gray-800 p-4 rounded-lg flex items-center gap-4 border-l-4 border-blue-500 hover:border-green-500 transition-all';
-        card.innerHTML = `
-          <div class="flex-1">
-            <div class="font-bold text-lg">${name}</div>
-            <div class="text-gray-400">${club.name}</div>
-            <div class="text-xs text-gray-500 mt-1">${club.league}</div>
-          </div>
-          <div class="flex items-center gap-1">
-            ${'★'.repeat(club.rating)}${'☆'.repeat(5 - club.rating)}
-          </div>
-        `;
-        resultsContainer.appendChild(card);
-      });
-      
-      // Show results section
-      resultsSection.classList.remove('hidden');
-      
-      // Scroll to results
-      setTimeout(() => {
-        resultsSection.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    }
-
-    // Update league distribution visualization
-    function updateLeagueDistribution(stats) {
-      const total = Object.values(stats).reduce((a, b) => a + b, 0);
-      const leagues = ['Premier League', 'La Liga', 'Bundesliga', 'Serie A', 'Ligue 1'];
-      const counts = leagues.map(league => stats[league] || 0);
-      
-      // Simple visualization - could be enhanced with a proper chart
-      const totalCounts = counts.reduce((a, b) => a + b, 0);
-      if (totalCounts > 0) {
-        const percentages = counts.map(c => (c / totalCounts) * 100);
-        const gradientStops = [];
-        let accumulated = 0;
-        
-        percentages.forEach((p, i) => {
-          if (p > 0) {
-            const color = [
-              'from-blue-500', 
-              'via-blue-400', 
-              'to-green-500', 
-              'via-green-400', 
-              'to-purple-500'
-            ][i];
-            gradientStops.push(`${color} ${accumulated}% ${accumulated + p}%`);
-            accumulated += p;
-          }
-        });
-        
-        leagueDistributionEl.style.background = `linear-gradient(to right, ${gradientStops.join(', ')})`;
-      }
-    }
-
-    // Update statistics
-    function updateStats() {
-      const names = getNames();
-      playersCountEl.textContent = names.length;
-      
-      // Update league distribution preview
-      const percentage = Math.min(100, (names.length / clubs.length) * 100);
-      leagueDistributionEl.style.width = `${percentage}%`;
-    }
-
-    // Share results
-    function shareResults() {
-      const names = getNames();
-      const results = [...resultsContainer.querySelectorAll('.club-card')].map(card => {
-        const name = card.querySelector('div:nth-child(1) > div:nth-child(1)').textContent;
-        const club = card.querySelector('div:nth-child(1) > div:nth-child(2)').textContent;
-        return `${name} → ${club}`;
-      }).join('\n');
-      
-      const shareText = `Check out these football club assignments:\n\n${results}\n\nGenerated by Futuristic Club Picker`;
-      
-      if (navigator.share) {
-        navigator.share({
-          title: 'Football Club Assignments',
-          text: shareText
-        }).catch(err => {
-          console.log('Error sharing:', err);
-          copyToClipboard(shareText);
-        });
-      } else {
-        copyToClipboard(shareText);
-      }
-    }
-
-    // Copy to clipboard
-    function copyToClipboard(text) {
-      const el = document.createElement('textarea');
-      el.value = text;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
-      
-      showAlert('Results copied to clipboard!');
-    }
-
-    // Show alert
-    function showAlert(message) {
-      const alert = document.createElement('div');
-      alert.className = 'fixed top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg animate__animated animate__fadeInRight';
-      alert.textContent = message;
-      document.body.appendChild(alert);
-      
-      setTimeout(() => {
-        alert.classList.add('animate__fadeOutRight');
-        setTimeout(() => alert.remove(), 500);
-      }, 3000);
-    }
-
-    // Reset everything
-    function reset() {
-      // Clear results
-      resultsContainer.innerHTML = '';
-      resultsSection.classList.add('hidden');
-      
-      // Reset setup
-      playersContainer.innerHTML = '';
-      document.getElementById('setup').classList.remove('hidden');
-      
-      // Add default players
-      addPlayer();
-      addPlayer();
-      
-      // Stop confetti
-      confetti.clear();
-      
-      // Scroll to top
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // Initialize on load
-    window.onload = init;
-  </script>
 </body>
 </html>
