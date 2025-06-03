@@ -106,23 +106,21 @@ const loadingMessages = [
 function randomizeBothClubs() {
     loadingModal.classList.remove('hidden');
     
-    let messageIndex = Math.floor(Math.random() * loadingMessages.length);
+    const messageIndex = Math.floor(Math.random() * loadingMessages.length);
     loadingText.textContent = loadingMessages[messageIndex];
     
-    const messageInterval = setInterval(() => {
-        messageIndex = Math.floor(Math.random() * loadingMessages.length);
-        loadingText.textContent = loadingMessages[messageIndex];
-    }, 2000);
-    
     setTimeout(() => {
-        clearInterval(messageInterval);
-        const randomClub1 = topClubs[Math.floor(Math.random() * topClubs.length)];
-        const randomClub2 = topClubs[Math.floor(Math.random() * topClubs.length)];
+        const availableClubs = [...topClubs];
+        const randomIndex1 = Math.floor(Math.random() * availableClubs.length);
+        const randomClub1 = availableClubs.splice(randomIndex1, 1)[0];
+        const randomIndex2 = Math.floor(Math.random() * availableClubs.length);
+        const randomClub2 = availableClubs[randomIndex2];
+        
         player1Club.textContent = randomClub1;
         player2Club.textContent = randomClub2;
         loadingModal.classList.add('hidden');
         winnerButtons.classList.remove('hidden');
-    }, 6000);
+    }, 2000);
 }
 
 function resetDuel() {
@@ -170,7 +168,6 @@ function handleWinnerDeclaration(winner) {
         player1Club.textContent = 'Belum dipilih';
         player2Club.textContent = 'Belum dipilih';
         winnerButtons.classList.add('hidden');
-        nextMatchBtn.classList.remove('hidden');
     }
 }
 
@@ -181,7 +178,7 @@ function showResultMessage(message, loserMessage, isFinal = false) {
         <div class="bg-gray-800 p-8 rounded-xl max-w-md w-full text-center">
             <h3 class="text-2xl font-bold ${isFinal ? 'text-green-500' : 'text-yellow-400'} mb-4">${message}</h3>
             <p class="text-gray-300 mb-4">${isFinal ? 'Permainan selesai! ' + loserMessage : 'Score: ' + duelScore.player1 + '-' + duelScore.player2 + '<br>' + loserMessage}</p>
-            <button id="closeResultModal" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition">
+            <button class="close-result-modal bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition">
                 Oke bro!
             </button>
         </div>
@@ -189,9 +186,18 @@ function showResultMessage(message, loserMessage, isFinal = false) {
     
     document.body.appendChild(resultModal);
     
-    document.getElementById('closeResultModal').addEventListener('click', () => {
-        document.body.removeChild(resultModal);
-        if (isFinal) resetDuel();
+    resultModal.addEventListener('click', function(e) {
+        if (e.target.classList.contains('close-result-modal')) {
+            document.body.removeChild(resultModal);
+            if (isFinal) {
+                resetDuel();
+            } else {
+                currentMatch++;
+                player1Club.textContent = 'Belum dipilih';
+                player2Club.textContent = 'Belum dipilih';
+                winnerButtons.classList.add('hidden');
+            }
+        }
     });
 }
 
@@ -304,3 +310,191 @@ function updatePlayerName(player) {
 }
 
 switchMode('duel');
+
+// Add these at the top with other DOM element declarations
+const resetDuelBtn = document.getElementById('resetDuelBtn');
+const historySection = document.getElementById('historySection');
+const historyList = document.getElementById('historyList');
+
+// Add this event listener with others
+resetDuelBtn.addEventListener('click', resetDuel);
+
+// Add these functions to handle localStorage
+function saveToLocalStorage() {
+    const data = {
+        currentMode,
+        duelScore,
+        bestOf,
+        currentMatch,
+        playerNames,
+        player1Club: player1Club.textContent,
+        player2Club: player2Club.textContent,
+        history: JSON.parse(localStorage.getItem('footballClubPickerHistory')) || []
+    };
+    localStorage.setItem('footballClubPickerData', JSON.stringify(data));
+}
+
+function loadFromLocalStorage() {
+    const savedData = localStorage.getItem('footballClubPickerData');
+    if (savedData) {
+        const data = JSON.parse(savedData);
+        
+        currentMode = data.currentMode;
+        duelScore = data.duelScore || { player1: 0, player2: 0 };
+        bestOf = data.bestOf || 3;
+        currentMatch = data.currentMatch || 1;
+        playerNames = data.playerNames || { player1: "Player 1", player2: "Player 2" };
+        
+        player1NameInput.value = playerNames.player1;
+        player2NameInput.value = playerNames.player2;
+        player1Club.textContent = data.player1Club || 'Belum dipilih';
+        player2Club.textContent = data.player2Club || 'Belum dipilih';
+        
+        updateScoreboard();
+        
+        if (player1Club.textContent !== 'Belum dipilih' && player2Club.textContent !== 'Belum dipilih') {
+            winnerButtons.classList.remove('hidden');
+        }
+        
+        if (duelScore.player1 > 0 || duelScore.player2 > 0) {
+            nextMatchBtn.classList.remove('hidden');
+        }
+    }
+    
+    loadHistory();
+}
+
+function loadHistory() {
+    const history = JSON.parse(localStorage.getItem('footballClubPickerHistory')) || [];
+    historyList.innerHTML = '';
+    
+    if (history.length === 0) {
+        historyList.innerHTML = '<p class="text-gray-400">Belum ada history pertandingan.</p>';
+        return;
+    }
+    
+    history.forEach((match, index) => {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'bg-gray-700 p-3 rounded-lg';
+        historyItem.innerHTML = `
+            <div class="flex justify-between items-center">
+                <div>
+                    <span class="font-bold ${match.winner === match.player1 ? 'text-green-400' : 'text-red-400'}">${match.player1}</span>
+                    <span class="mx-2">vs</span>
+                    <span class="font-bold ${match.winner === match.player2 ? 'text-green-400' : 'text-red-400'}">${match.player2}</span>
+                </div>
+                <span class="text-sm text-gray-400">${new Date(match.timestamp).toLocaleString()}</span>
+            </div>
+            <div class="mt-2 text-sm">
+                <p>${match.player1} (${match.player1Club}) ${match.player1Score} - ${match.player2Score} ${match.player2} (${match.player2Club})</p>
+                <p class="text-yellow-400">Pemenang: ${match.winner} (Best of ${match.bestOf})</p>
+            </div>
+        `;
+        historyList.appendChild(historyItem);
+    });
+}
+
+function addToHistory(winner) {
+    const history = JSON.parse(localStorage.getItem('footballClubPickerHistory')) || [];
+    
+    const matchData = {
+        player1: playerNames.player1,
+        player2: playerNames.player2,
+        player1Club: player1Club.textContent,
+        player2Club: player2Club.textContent,
+        player1Score: duelScore.player1,
+        player2Score: duelScore.player2,
+        winner: winner === 1 ? playerNames.player1 : playerNames.player2,
+        bestOf,
+        timestamp: new Date().toISOString()
+    };
+    
+    history.unshift(matchData); // Add new match to beginning of array
+    localStorage.setItem('footballClubPickerHistory', JSON.stringify(history.slice(0, 20))); // Keep only last 20 matches
+}
+
+// Update the handleWinnerDeclaration function
+function handleWinnerDeclaration(winner) {
+    const loser = winner === 1 ? playerNames.player2 : playerNames.player1;
+    const loserClub = winner === 1 ? player2Club.textContent : player1Club.textContent;
+    const loserMessages = [
+        `Yaelah ${loser}, main ${loserClub} kok gitu, mending pensiun aja bro dari PS, malu-maluin doang!`,
+        `Hadeuh ${loser}, pake ${loserClub} aja lo k.o., pulang aja sana, ga usah main lagi!`,
+        `Duh ${loser}, ${loserClub} aja ga nolong, mending lo jadi penutup stick PS aja bro!`,
+        `Aduh ${loser}, main ${loserClub} kok ampe babak belur, balik kampung aja sana!`,
+        `Haha ${loser}, ${loserClub} lo bikin ketawa, mending lo nonton bola aja ketimbang main!`
+    ];
+    
+    if (winner === 1) {
+        duelScore.player1++;
+    } else {
+        duelScore.player2++;
+    }
+    
+    updateScoreboard();
+    saveToLocalStorage();
+    
+    if (duelScore.player1 >= Math.ceil(bestOf / 2)) {
+        addToHistory(1);
+        showResultMessage(`${playerNames.player1} MENANG BEST OF ${bestOf}! SELAMAT BRO!`, `${loser} pake ${loserClub} ampe kalah telak, mending lo jual PS lo bro, ga usah main lagi!`, true);
+    } else if (duelScore.player2 >= Math.ceil(bestOf / 2)) {
+        addToHistory(2);
+        showResultMessage(`${playerNames.player2} MENANG BEST OF ${bestOf}! WIH KEREN!`, `${loser} pake ${loserClub} ampe babak belur, pulang aja sana, ga level bro!`, true);
+    } else {
+        showResultMessage(
+            winner === 1 ? `${playerNames.player1} menang dengan ${player1Club.textContent}! Gokil!` : `${playerNames.player2} menang dengan ${player2Club.textContent}! Mantap jiwa!`, 
+            loserMessages[Math.floor(Math.random() * loserMessages.length)]
+        );
+        currentMatch++;
+        player1Club.textContent = 'Belum dipilih';
+        player2Club.textContent = 'Belum dipilih';
+        winnerButtons.classList.add('hidden');
+        nextMatchBtn.classList.remove('hidden');
+    }
+}
+
+// Update the resetDuel function
+function resetDuel() {
+    if (confirm("Yakin mau reset pertandingan? Semua progress akan hilang!")) {
+        player1Club.textContent = 'Belum dipilih';
+        player2Club.textContent = 'Belum dipilih';
+        duelScore = { player1: 0, player2: 0 };
+        currentMatch = 1;
+        updateScoreboard();
+        winnerButtons.classList.add('hidden');
+        nextMatchBtn.classList.add('hidden');
+        
+        // Clear the current match data from localStorage
+        localStorage.removeItem('footballClubPickerData');
+    }
+}
+
+// Update the switchMode function to save to localStorage
+function switchMode(mode) {
+    currentMode = mode;
+    saveToLocalStorage();
+    
+    if (mode === 'duel') {
+        duelContent.classList.remove('hidden');
+        tournamentContent.classList.add('hidden');
+    } else {
+        duelContent.classList.add('hidden');
+        tournamentContent.classList.remove('hidden');
+        generateTournamentPlayers(parseInt(playerCount.value));
+    }
+}
+
+// Add this at the end of the file to load saved data when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    loadFromLocalStorage();
+    if (currentMode === 'tournament') {
+        generateTournamentPlayers(parseInt(playerCount.value));
+    }
+});
+
+// Update other functions that modify state to call saveToLocalStorage()
+// Add saveToLocalStorage() to:
+// - randomizePlayerName()
+// - updatePlayerName()
+// - randomizeBothClubs()
+// - updateBestOf()
