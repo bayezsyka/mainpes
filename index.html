@@ -34,19 +34,78 @@
             transform: translateX(5px);
             background-color: #2d3748;
         }
+        .winner-border {
+            border: 4px solid #ffff; /* Green for winner highlight */
+        }
+        .history-container {
+            background-color: #2d3748; /* Darker gray to match theme */
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+        .history-match {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap; /* Allow wrapping for mobile */
+        }
+        .history-player {
+            flex: 1;
+            min-width: 100px; /* Minimum width for mobile */
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            text-align: center;
+            background-color: #3b82f6; /* Blue from theme */
+            font-weight: 600;
+            font-size: 0.875rem; /* Smaller font for mobile */
+        }
+        .history-score {
+            background-color: #f59e0b; /* Yellow from theme */
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+            font-size: 0.875rem; /* Smaller font for mobile */
+            min-width: 2rem;
+            text-align: center;
+        }
+        .history-time {
+            font-size: 0.75rem;
+            color: #a0aec0; /* Light gray for time */
+            text-align: center;
+            min-width: 3.5rem; /* Fixed width for consistency */
+        }
+        @media (max-width: 640px) { /* Mobile responsiveness */
+            .history-match {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            .history-player {
+                font-size: 0.75rem;
+                padding: 0.25rem;
+            }
+            .history-score {
+                font-size: 0.75rem;
+                padding: 0.125rem 0.25rem;
+            }
+            .history-time {
+                font-size: 0.625rem;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen">
     <div class="container mx-auto px-4 py-8">
         <header class="text-center mb-6">
-            <h1 class="text-4xl md:text-5xl font-bold text-yellow-400 mb-2">PILIH TIM RANDOM GOBLOK</h1>
-            <p class="text-lg text-gray-300 mb-6">Buat lo yang males debat pilih tim pas maen PES/FIFA</p>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-yellow-400 mb-2">PILIH TIM RANDOM GOBLOK</h1>
+            <p class="text-base sm:text-lg text-gray-300 mb-6">Buat lo yang males debat pilih tim pas maen PES/FIFA</p>
             
-            <div class="flex justify-center gap-4 mb-8">
-                <button id="duelModeBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition">
+            <div class="flex flex-wrap justify-center gap-4 mb-8">
+                <button id="duelModeBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 sm:px-6 rounded-lg transition">
                     1 vs 1 Duel Mode
                 </button>
-                <button id="tournamentModeBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition">
+                <button id="tournamentModeBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 sm:px-6 rounded-lg transition">
                     Turnamen Mode
                 </button>
             </div>
@@ -54,11 +113,11 @@
 
         <!-- Duel Mode Content -->
         <div id="duelContent" class="hidden">
-            <div class="flex flex-col md:flex-row gap-8">
-                <div class="w-full md:w-1/2 bg-gray-800 p-6 rounded-xl shadow-lg">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-yellow-400">Duel Mode</h2>
-                        <div class="flex items-center space-x-2">
+            <div class="flex flex-col lg:flex-row gap-6 xl:gap-8">
+                <div class="w-full lg:w-1/2 bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg">
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
+                        <h2 class="text-xl sm:text-2xl font-bold text-yellow-400">Duel Mode</h2>
+                        <div class="flex items-center space-x-2 mt-2 sm:mt-0">
                             <span class="text-gray-300">Best of:</span>
                             <select id="bestOfSelect" class="bg-gray-700 text-white rounded px-3 py-1">
                                 <option value="1">1 Match</option>
@@ -69,7 +128,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
                         <div class="club-card bg-gray-700 p-4 rounded-lg text-center">
                             <div class="flex items-center justify-center mb-2">
                                 <input id="player1NameInput" type="text" value="Player 1" class="bg-gray-800 text-white p-2 rounded-lg w-3/4 text-center">
@@ -77,8 +136,8 @@
                                     Random
                                 </button>
                             </div>
-                            <div class="bg-gray-800 rounded-lg p-4 h-40 flex items-center justify-center">
-                                <p id="player1Club" class="text-lg">Belum dipilih</p>
+                            <div class="bg-gray-800 rounded-lg p-4 h-32 sm:h-40 flex items-center justify-center">
+                                <p id="player1Club" class="text-base sm:text-lg">Belum dipilih</p>
                             </div>
                         </div>
 
@@ -89,66 +148,66 @@
                                     Random
                                 </button>
                             </div>
-                            <div class="bg-gray-800 rounded-lg p-4 h-40 flex items-center justify-center">
-                                <p id="player2Club" class="text-lg">Belum dipilih</p>
+                            <div class="bg-gray-800 rounded-lg p-4 h-32 sm:h-40 flex items-center justify-center">
+                                <p id="player2Club" class="text-base sm:text-lg">Belum dipilih</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="text-center mb-6">
-                        <button id="randomizeBothBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                    <div class="text-center mb-6 space-y-4 sm:space-y-0 sm:space-x-3">
+                        <button id="randomizeBothBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition">
                             Randomize Kedua Tim
                         </button>
-                        <button id="resetDuelBtn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition ml-3">
+                        <button id="resetDuelBtn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition">
                             Reset Pertandingan
                         </button>
                     </div>
 
                     <div class="text-center hidden" id="winnerButtons">
-                        <button id="declarePlayer1Winner" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition mr-3">
+                        <button id="declarePlayer1Winner" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition mr-2">
                             Player 1 Menang!
                         </button>
-                        <button id="declarePlayer2Winner" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                        <button id="declarePlayer2Winner" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition">
                             Player 2 Menang!
                         </button>
                     </div>
 
                     <div class="text-center">
-                        <button id="nextMatchBtn" class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded-lg text-lg transition hidden">
+                        <button id="nextMatchBtn" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg text-base sm:text-lg transition hidden">
                             Match Selanjutnya Coy!
                         </button>
                     </div>
 
                     <div class="mt-6 bg-gray-900 p-4 rounded-lg">
-                        <h3 class="text-lg font-bold text-yellow-400 mb-2">Scoreboard</h3>
-                        <div class="flex justify-between">
+                        <h3 class="text-base sm:text-lg font-bold text-yellow-400 mb-2">Scoreboard</h3>
+                        <div class="flex justify-between text-sm sm:text-base">
                             <span id="player1Score">Player 1: 0</span>
                             <span id="player2Score">Player 2: 0</span>
                         </div>
                     </div>
                 </div>
 
-                <div id="historySection" class="w-full md:w-1/2 bg-gray-800 p-6 rounded-xl shadow-lg">
-                    <h2 class="text-2xl font-bold text-yellow-400 mb-4">Histori Pertandingan</h2>
+                <div id="historySection" class="w-full lg:w-1/2 bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg">
+                    <h2 class="text-xl sm:text-2xl font-bold text-yellow-400 mb-4">Histori Pertandingan</h2>
                     <div id="historyList" class="space-y-2"></div>
                 </div>
             </div>
         </div>
 
         <!-- Tournament Mode Content -->
-        <div id="tournamentContent" class="hidden bg-gray-800 p-6 rounded-xl shadow-lg">
-            <h2 class="text-2xl font-bold text-yellow-400 mb-6">Turnamen Mode</h2>
+        <div id="tournamentContent" class="hidden bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg">
+            <h2 class="text-xl sm:text-2xl font-bold text-yellow-400 mb-6">Turnamen Mode</h2>
             
             <div class="mb-6">
-                <label class="block text-gray-300 mb-2">Jumlah Player:</label>
+                <label class="block text-gray-300 mb-2 text-sm sm:text-base">Jumlah Player:</label>
                 <div class="flex items-center space-x-4">
                     <input type="range" id="playerCount" min="3" max="16" value="3" class="w-full">
-                    <span id="playerCountValue" class="text-xl font-bold">3</span>
+                    <span id="playerCountValue" class="text-lg sm:text-xl font-bold">3</span>
                 </div>
             </div>
 
-            <div class="mb-6">
-                <button id="randomizeAllNamesBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition mr-3">
+            <div class="mb-6 flex flex-wrap gap-3">
+                <button id="randomizeAllNamesBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition">
                     Random Nama Player
                 </button>
                 <button id="randomizeAllClubsBtn" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition">
@@ -162,12 +221,27 @@
     </div>
 
     <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
-        <div class="bg-gray-800 p-8 rounded-xl max-w-md w-full text-center">
-            <h3 id="loadingText" class="text-2xl font-bold text-yellow-400 mb-4">Hayo Player 1 bakal dapet tim goblok nih...</h3>
+        <div class="bg-gray-800 p-6 sm:p-8 rounded-xl max-w-md w-full text-center">
+            <h3 id="loadingText" class="text-xl sm:text-2xl font-bold text-yellow-400 mb-4">Hayo Player 1 bakal dapet tim goblok nih...</h3>
             <div class="w-full bg-gray-700 rounded-full h-4 mb-6">
-                <div class="loading-bar bg-yellow-500 h-4 rounded-full"></div>
+                <div class="loading-bar bg-yellow-400 h-4 rounded-full"></div>
             </div>
-            <p class="text-gray-300">Tunggu sebentar bro, sistem lagi nyari tim cupu buat lo...</p>
+            <p class="text-gray-300 text-sm sm:text-base">Tunggu sebentar bro, sistem lagi nyari tim cupu buat lo...</p>
+        </div>
+    </div>
+
+    <div id="resetModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 p-6 sm:p-8 rounded-xl max-w-md w-full text-center">
+            <h3 class="text-xl sm:text-2xl font-bold text-yellow-400 mb-4">Yakin mau reset pertandingan?</h3>
+            <p class="text-gray-300 mb-4 text-sm sm:text-base">Semua progress akan hilang!</p>
+            <div class="flex justify-center gap-3">
+                <button id="confirmResetBtn" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition">
+                    Yakin, reset!
+                </button>
+                <button id="cancelResetBtn" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition">
+                    Batal
+                </button>
+            </div>
         </div>
     </div>
 
