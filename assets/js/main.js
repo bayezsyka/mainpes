@@ -234,8 +234,8 @@ function generateTournamentPlayers(count) {
         const playerCard = document.createElement('div');
         playerCard.className = 'club-card bg-gray-700 p-4 rounded-lg';
         playerCard.innerHTML = `
-            <div class="flex justify-between items-center mb-2">
-                <h3 class="text-base sm:text-lg font-bold tournament-player-name">Player ${i + 1}</h3>
+            <div class="flex items-center mb-2">
+                <input type="text" class="tournament-player-name bg-gray-800 text-white p-2 rounded-lg flex-1 mr-2" value="Player ${i + 1}">
                 <button class="randomize-name-btn bg-blue-500 hover:bg-blue-600 text-white text-xs py-1 px-2 rounded transition" data-index="${i}">
                     Random Nama
                 </button>
@@ -272,7 +272,7 @@ function randomizeAllNames() {
 
 function randomizeSingleName(index) {
     const nameElements = document.querySelectorAll('.tournament-player-name');
-    nameElements[index].textContent = funnyAnimalNames[Math.floor(Math.random() * funnyAnimalNames.length)];
+    nameElements[index].value = funnyAnimalNames[Math.floor(Math.random() * funnyAnimalNames.length)];
 }
 
 function randomizeAllClubs() {
@@ -294,7 +294,7 @@ function randomizeSingleClub(index) {
         clearInterval(messageInterval);
         clubElements[index].textContent = topClubs[Math.floor(Math.random() * topClubs.length)];
         elements.loadingModal.classList.add('hidden');
-    }, 6000);
+    }, 3500);
 }
 
 function randomizePlayerName(player) {
@@ -399,7 +399,5 @@ function addToHistory(winner) {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadFromLocalStorage();
-    if (currentMode === 'tournament') {
-        generateTournamentPlayers(parseInt(elements.playerCount.value));
-    }
+    switchMode(currentMode);
 });
